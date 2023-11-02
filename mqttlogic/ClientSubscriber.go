@@ -22,12 +22,10 @@ import (
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"log"
-	"os"
-	"os/signal"
-	"time"
 )
 
 var ConfigData MqttData
+var Client mqtt.Client
 
 func SetConfigData(configData MqttData) {
 	ConfigData = configData
@@ -62,25 +60,17 @@ func Connect() {
 	ops.OnConnect = connectHandler
 	ops.OnConnectionLost = connectLostHandler
 	ops.SetDefaultPublishHandler(messagePubHandler)
-	client := mqtt.NewClient(ops)
-	defer client.Disconnect(1000 * 3600)
+	Client = mqtt.NewClient(ops)
+
 	// throw an error if the connection isn't successfull
-	if token := client.Connect(); token.Wait() && token.Error() != nil {
+	if token := Client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
 	topics := ConfigData.Topics
 	for _, topic := range topics {
-		subscribe(client, topic)
+		subscribe(Client, topic)
 	}
-	go func() {
-		for {
-			time.Sleep(1 * time.Second)
-		}
-	}()
 
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	<-c
 }
 
 func subscribe(client mqtt.Client, topic string) {

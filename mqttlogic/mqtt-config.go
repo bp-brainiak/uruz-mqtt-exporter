@@ -18,10 +18,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package mqttlogic
 
 type MqttData struct {
-	Server  string
-	Port    int64
-	User    string
-	Pass    string
-	Topics  []string
-	Verbose bool
+	Server            string
+	Port              int64
+	User              string
+	Pass              string
+	Topics            []string
+	Verbose           bool
+	PrometheusEndoint string
 }

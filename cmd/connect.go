@@ -20,11 +20,14 @@ package cmd
 import (
 	"github.com/bp-brainiak/uruz-mqtt-exporter/mqttlogic"
 	"log"
+	"os"
+	"os/signal"
+	"time"
 
 	"github.com/spf13/cobra"
 )
 
-var server, user, password string
+var server, user, password, prometeusEndpoint string
 var port int64
 var topics []string
 var verbose bool
@@ -63,8 +66,19 @@ var connectCmd = &cobra.Command{
 		mqConfig.Pass = password
 		mqConfig.Topics = topics
 		mqConfig.Verbose = verbose
+		mqConfig.PrometheusEndoint = prometeusEndpoint
 		mqttlogic.SetConfigData(*mqConfig)
 		mqttlogic.Connect()
+		go func() {
+			defer mqttlogic.Client.Disconnect(251)
+			for {
+				time.Sleep(1 * time.Second)
+			}
+		}()
+
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt)
+		<-c
 	},
 }
 
@@ -77,10 +91,12 @@ func init() {
 	connectCmd.Flags().StringVarP(&password, "password", "", "", "the password for the account")
 	connectCmd.Flags().StringSliceVar(&topics, "topic", []string{}, "the topic or topics to be subscribed on the mqtt server")
 	connectCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "set verbose output (optional)")
-	connectCmd.MarkFlagRequired("server")
-	connectCmd.MarkFlagRequired("port")
-	connectCmd.MarkFlagRequired("user")
-	connectCmd.MarkFlagRequired("password")
-	connectCmd.MarkFlagRequired("topic")
+	connectCmd.Flags().StringVarP(&prometeusEndpoint, "prometheus", "", "", "set the prometheus endpoint ")
+	process_error = connectCmd.MarkFlagRequired("server")
+	process_error = connectCmd.MarkFlagRequired("port")
+	process_error = connectCmd.MarkFlagRequired("user")
+	process_error = connectCmd.MarkFlagRequired("password")
+	process_error = connectCmd.MarkFlagRequired("topic")
+	process_error = connectCmd.MarkFlagRequired("prometheus")
 
 }
