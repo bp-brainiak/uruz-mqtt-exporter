@@ -32,7 +32,7 @@ var process_error error
 
 // connectCmd represents the connect command
 var connectCmd = &cobra.Command{
-	Use:   "connect -s [server] -u [user] -p [password] -t [topics..]  ",
+	Use:   "connect",
 	Short: "connect to the mqtt broker and subscribe to the given topics",
 	Long:  `Establish the connection to the mqtt server and subscribe to the topics`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -70,18 +70,17 @@ var connectCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(connectCmd)
-
 	// Here you will define your flags and configuration settings.
 	connectCmd.Flags().StringVarP(&server, "server", "s", "", "Server URL to connect")
 	connectCmd.Flags().Int64VarP(&port, "port", "P", 0, "port to the mqtt server")
 	connectCmd.Flags().StringVarP(&user, "user", "", "", "the user account")
 	connectCmd.Flags().StringVarP(&password, "password", "", "", "the password for the account")
-	connectCmd.Flags().StringSliceVar(&topics, "topic", []string{}, "the topics to be subscribed on the mqtt server")
+	connectCmd.Flags().StringSliceVar(&topics, "topic", []string{}, "the topic or topics to be subscribed on the mqtt server")
 	connectCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "set verbose output (optional)")
 	connectCmd.MarkFlagRequired("server")
 	connectCmd.MarkFlagRequired("port")
 	connectCmd.MarkFlagRequired("user")
-	connectCmd.MarkFlagRequired("pass")
-	connectCmd.MarkFlagRequired("topics")
+	connectCmd.MarkFlagRequired("password")
+	connectCmd.MarkFlagRequired("topic")
 
 }
